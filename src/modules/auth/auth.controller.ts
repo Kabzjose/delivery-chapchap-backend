@@ -36,7 +36,7 @@ export const authController = {
     }
     const result = await authService.refresh(token);
     setRefreshCookie(res, result.refreshToken);
-    res.status(200).json({ accessToken: result.accessToken });
+    return res.status(200).json({ accessToken: result.accessToken });
   },
 
   async logout(req: Request, res: Response) {
