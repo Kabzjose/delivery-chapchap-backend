@@ -7,6 +7,7 @@ import pinoHttp from 'pino-http';
 import { logger } from './lib/logger.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { authRouter } from './modules/auth/auth.routes.js';
+import { pricingRouter } from './modules/pricing/pricing.routes.js';
 
 // Exported without side effects so tests can import it without binding to a port.
 export const app = express();
@@ -32,6 +33,7 @@ app.use(
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 app.use('/api/auth', authRouter);
+app.use('/api/pricing', pricingRouter);
 
 // errorHandler must be last — Express routes errors to 4-arg middleware registered at the end.
 app.use(errorHandler);
