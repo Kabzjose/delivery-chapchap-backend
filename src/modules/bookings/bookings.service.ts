@@ -1,5 +1,6 @@
 import { bookingsRepository } from './bookings.repository.js';
 import { pricingService } from '../pricing/pricing.service.js';
+import { paymentsService } from '../payments/payments.service.js';
 import { BadRequestError, ForbiddenError, NotFoundError } from '../../lib/errors.js';
 import type { CreateBookingInput } from './bookings.schema.js';
 import type { BookingStatus, Role } from '@prisma/client';
@@ -7,6 +8,7 @@ import type { BookingStatus, Role } from '@prisma/client';
 // State machine — the single source of truth for legal lifecycle transitions.
 // Illegal jumps (e.g. PENDING → DELIVERED) are rejected before touching the DB.
 const ALLOWED_TRANSITIONS: Record<BookingStatus, BookingStatus[]> = {
+  AWAITING_PAYMENT: ['PENDING', 'CANCELLED'], // system-driven only — set by payment callback
   PENDING: ['CONFIRMED', 'CANCELLED'],
   CONFIRMED: ['PICKED_UP', 'CANCELLED'],
   PICKED_UP: ['IN_TRANSIT', 'CANCELLED'],
@@ -25,11 +27,20 @@ export const bookingsService = {
       weightKg: input.weightKg,
     });
 
-    return bookingsRepository.create({
+    const booking = await bookingsRepository.create({
       customerId,
       ...input,
       price: quote.price,
     });
+
+    // Immediately trigger STK push — if it fails, the service cancels the booking and throws
+    const payment = await paymentsService.initiateForBooking(
+      booking.id,
+      input.recipientPhone,
+      quote.price,
+    );
+
+    return { booking, payment };
   },
 
   async getById(bookingId: string, requester: { id: string; role: Role }) {

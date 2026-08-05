@@ -18,10 +18,10 @@ export const bookingsRepository = {
     return prisma.booking.create({
       data: {
         ...data,
-        status: 'PENDING',
+        status: 'AWAITING_PAYMENT',
         // Nested write — Prisma executes the status update + history log atomically
         statusHistory: {
-          create: { status: 'PENDING' },
+          create: { status: 'AWAITING_PAYMENT' },
         },
       },
       include: { pickupZone: true, dropoffZone: true },
