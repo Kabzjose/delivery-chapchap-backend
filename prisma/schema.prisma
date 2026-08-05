@@ -53,6 +53,7 @@ enum PackageType {
 }
 
 enum BookingStatus {
+ AWAITING_PAYMENT
   PENDING
   CONFIRMED
   PICKED_UP
@@ -131,4 +132,39 @@ model BookingStatusHistory {
   changedAt DateTime      @default(now())
 
   @@map("booking_status_history")
+}
+
+enum PaymentMethod {
+  MPESA
+  CARD
+  BANK
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+}
+
+model Payment {
+  id     String @id @default(uuid())
+
+  bookingId String  @unique
+  booking   Booking @relation(fields: [bookingId], references: [id])
+
+  method PaymentMethod
+  amount Float
+  status PaymentStatus @default(PENDING)
+
+  // M-Pesa specific fields
+  mpesaPhone             String?
+  mpesaCheckoutRequestId String? @unique
+  mpesaMerchantRequestId String?
+  mpesaReceiptNumber     String?
+  failureReason          String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("payments")
 }
