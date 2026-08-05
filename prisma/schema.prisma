@@ -24,6 +24,8 @@ model User {
   isActive     Boolean  @default(true)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+  bookingsAsCustomer Booking[] @relation("CustomerBookings")
+  bookingsAsRider    Booking[] @relation("RiderBookings")
 
   refreshTokens RefreshToken[]
 
@@ -40,4 +42,93 @@ model RefreshToken {
   createdAt DateTime @default(now())
 
   @@map("refresh_tokens")
+}
+
+enum PackageType {
+  DOCUMENT
+  PARCEL
+  FRAGILE
+  ELECTRONICS
+  OTHER
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  PICKED_UP
+  IN_TRANSIT
+  DELIVERED
+  CANCELLED
+}
+
+model Zone {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  createdAt DateTime @default(now())
+
+  routesFrom      ZoneRoute[] @relation("FromZone")
+  routesTo        ZoneRoute[] @relation("ToZone")
+  pickupBookings  Booking[]   @relation("PickupZone")
+  dropoffBookings Booking[]   @relation("DropoffZone")
+
+  @@map("zones")
+}
+
+model ZoneRoute {
+  id         String @id @default(uuid())
+  fromZoneId String
+  toZoneId   String
+  price      Float
+
+  fromZone Zone @relation("FromZone", fields: [fromZoneId], references: [id])
+  toZone   Zone @relation("ToZone", fields: [toZoneId], references: [id])
+
+  @@unique([fromZoneId, toZoneId])
+  @@map("zone_routes")
+}
+
+model Booking {
+  id     String @id @default(uuid())
+
+  customerId String
+  customer   User   @relation("CustomerBookings", fields: [customerId], references: [id])
+
+  riderId String?
+  rider   User?   @relation("RiderBookings", fields: [riderId], references: [id])
+
+  recipientName  String
+  recipientPhone String
+
+  pickupZoneId  String
+  pickupZone    Zone   @relation("PickupZone", fields: [pickupZoneId], references: [id])
+  pickupAddress String
+
+  dropoffZoneId  String
+  dropoffZone    Zone   @relation("DropoffZone", fields: [dropoffZoneId], references: [id])
+  dropoffAddress String
+
+  packageType         PackageType
+  weightKg            Float
+  specialInstructions String?
+
+  price  Float
+  status BookingStatus @default(PENDING)
+
+  statusHistory BookingStatusHistory[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("bookings")
+}
+
+model BookingStatusHistory {
+  id        String        @id @default(uuid())
+  bookingId String
+  booking   Booking       @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  status    BookingStatus
+  note      String?
+  changedAt DateTime      @default(now())
+
+  @@map("booking_status_history")
 }
