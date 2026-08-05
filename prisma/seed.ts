@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import bcrypt from 'bcrypt';
 
 const prisma = new PrismaClient();
 
@@ -40,6 +41,26 @@ async function main() {
       create: { fromZoneId: zoneByName[to].id, toZoneId: zoneByName[from].id, price },
     });
   }
+
+  const adminEmail = process.env.SEED_ADMIN_EMAIL;
+  const adminPassword = process.env.SEED_ADMIN_PASSWORD;
+  const adminPhone = process.env.SEED_ADMIN_PHONE;
+
+  if (adminEmail && adminPassword && adminPhone) {
+    const passwordHash = await bcrypt.hash(adminPassword, 12);
+    await prisma.user.upsert({
+    where: { email: adminEmail },
+    update: {},
+    create: {
+      name: 'System Admin',
+      email: adminEmail,
+      phone: adminPhone,
+      passwordHash,
+      role: 'ADMIN',
+    },
+  });
+  console.log('✅ Seeded admin account');
+}
 
   console.log('✅ Seeded zones and routes');
 }
