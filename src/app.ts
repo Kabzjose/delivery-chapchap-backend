@@ -8,6 +8,7 @@ import { logger } from './lib/logger.js';
 import { errorHandler } from './middleware/error.middleware.js';
 import { authRouter } from './modules/auth/auth.routes.js';
 import { pricingRouter } from './modules/pricing/pricing.routes.js';
+import { bookingsRouter } from './modules/bookings/bookings.routes.js';
 
 // Exported without side effects so tests can import it without binding to a port.
 export const app = express();
@@ -34,6 +35,7 @@ app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 
 app.use('/api/auth', authRouter);
 app.use('/api/pricing', pricingRouter);
+app.use('/api/bookings', bookingsRouter);
 
 // errorHandler must be last — Express routes errors to 4-arg middleware registered at the end.
 app.use(errorHandler);
