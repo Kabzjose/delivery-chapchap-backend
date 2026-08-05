@@ -82,6 +82,12 @@ export const bookingsRepository = {
           create: { status, note },
         },
       },
+      include: {
+        pickupZone: true,
+        dropoffZone: true,
+        rider: { select: { id: true, name: true, phone: true } },
+        statusHistory: { orderBy: { changedAt: 'asc' } },
+      },
     });
   },
 
@@ -91,4 +97,13 @@ export const bookingsRepository = {
       data: { riderId },
     });
   },
+
+  // Used to validate riderId before assignment — confirms user exists, is a RIDER, and is active
+  findRiderById(id: string) {
+    return prisma.user.findUnique({
+      where: { id },
+      select: { id: true, role: true, isActive: true },
+    });
+  },
 };
+

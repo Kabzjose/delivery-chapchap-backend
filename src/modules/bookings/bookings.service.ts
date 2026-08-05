@@ -123,6 +123,12 @@ export const bookingsService = {
       throw new BadRequestError('Can only assign a rider to a pending or confirmed booking');
     }
 
+    // Closes gaps #7 and #8 — rejects non-existent, wrong-role, or deactivated users
+    const rider = await bookingsRepository.findRiderById(riderId);
+    if (!rider || rider.role !== 'RIDER' || !rider.isActive) {
+      throw new BadRequestError('riderId does not correspond to an active rider');
+    }
+
     await bookingsRepository.assignRider(bookingId, riderId);
     // Auto-confirm on rider assignment so the rider knows it's ready to pick up
     return bookingsRepository.updateStatus(bookingId, 'CONFIRMED', 'Rider assigned');

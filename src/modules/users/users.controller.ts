@@ -23,4 +23,3 @@ export const usersController = {
     res.status(204).send();
   },
 };
-` `
