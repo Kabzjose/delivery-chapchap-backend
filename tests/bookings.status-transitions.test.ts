@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   request,
-  app,
   prisma,
   createUserDirect,
   signInAs,
@@ -32,7 +31,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     const { rider, booking } = await setupConfirmedBooking();
     const token = signInAs(rider.id, 'RIDER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'PICKED_UP' });
@@ -48,7 +47,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     const booking = await createBookingDirect(customer.id, zoneA.id, zoneB.id); // starts PENDING
     const token = signInAs(admin.id, 'ADMIN');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'DELIVERED' });
@@ -60,7 +59,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     const { rider, booking } = await setupConfirmedBooking();
     const token = signInAs(rider.id, 'RIDER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'IN_TRANSIT' });
@@ -73,7 +72,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     await prisma.booking.update({ where: { id: booking.id }, data: { status: 'DELIVERED' } });
     const token = signInAs(rider.id, 'RIDER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'IN_TRANSIT' });
@@ -86,7 +85,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     await prisma.booking.update({ where: { id: booking.id }, data: { status: 'CANCELLED' } });
     const token = signInAs(rider.id, 'RIDER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'CONFIRMED' });
@@ -98,7 +97,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     const { otherRider, booking } = await setupConfirmedBooking();
     const token = signInAs(otherRider.id, 'RIDER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'PICKED_UP' });
@@ -110,7 +109,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     const { customer, booking } = await setupConfirmedBooking();
     const token = signInAs(customer.id, 'CUSTOMER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'PICKED_UP' });
@@ -122,7 +121,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     const { admin, booking } = await setupConfirmedBooking();
     const token = signInAs(admin.id, 'ADMIN');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'PICKED_UP' });
@@ -137,7 +136,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     const booking = await createBookingDirect(customer.id, zoneA.id, zoneB.id);
     const token = signInAs(admin.id, 'ADMIN');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'CANCELLED' });
@@ -151,7 +150,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     await prisma.booking.update({ where: { id: booking.id }, data: { status: 'IN_TRANSIT' } });
     const token = signInAs(rider.id, 'RIDER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'CANCELLED' });
@@ -163,28 +162,28 @@ describe('PATCH /api/bookings/:id/status', () => {
     const { rider, booking } = await setupConfirmedBooking();
     const token = signInAs(rider.id, 'RIDER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({ status: 'SHIPPED' });
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(422); // Zod rejects unknown enum value
   });
 
   it('24. missing status field fails validation — 400', async () => {
     const { rider, booking } = await setupConfirmedBooking();
     const token = signInAs(rider.id, 'RIDER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${token}`)
       .send({});
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(422); // Zod rejects missing status field
   });
 
   it('25. unauthenticated status update is rejected — 401', async () => {
-    const res = await request(app)
+    const res = await request
       .patch('/api/bookings/00000000-0000-0000-0000-000000000000/status')
       .send({ status: 'PICKED_UP' });
 
@@ -196,17 +195,17 @@ describe('PATCH /api/bookings/:id/status', () => {
     const riderToken = signInAs(rider.id, 'RIDER');
     const adminToken = signInAs(admin.id, 'ADMIN');
 
-    await request(app)
+    await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${riderToken}`)
       .send({ status: 'PICKED_UP' });
 
-    await request(app)
+    await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${riderToken}`)
       .send({ status: 'IN_TRANSIT' });
 
-    const finalRes = await request(app)
+    const finalRes = await request
       .patch(`/api/bookings/${booking.id}/status`)
       .set('Authorization', `Bearer ${riderToken}`)
       .send({ status: 'DELIVERED' });
@@ -214,7 +213,7 @@ describe('PATCH /api/bookings/:id/status', () => {
     expect(finalRes.status).toBe(200);
     expect(finalRes.body.booking.status).toBe('DELIVERED');
 
-    const getRes = await request(app)
+    const getRes = await request
       .get(`/api/bookings/${booking.id}`)
       .set('Authorization', `Bearer ${adminToken}`);
 

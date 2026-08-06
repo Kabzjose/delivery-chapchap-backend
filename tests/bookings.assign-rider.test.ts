@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import {
   request,
-  app,
   prisma,
   createUserDirect,
   signInAs,
@@ -18,7 +17,7 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
     const booking = await createBookingDirect(customer.id, zoneA.id, zoneB.id);
     const token = signInAs(admin.id, 'ADMIN');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/assign-rider`)
       .set('Authorization', `Bearer ${token}`)
       .send({ riderId: rider.id });
@@ -35,7 +34,7 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
     const booking = await createBookingDirect(customer.id, zoneA.id, zoneB.id);
     const token = signInAs(customer.id, 'CUSTOMER');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/assign-rider`)
       .set('Authorization', `Bearer ${token}`)
       .send({ riderId: rider.id });
@@ -44,7 +43,7 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
   });
 
   it('3. unauthenticated request is rejected — 401', async () => {
-    const res = await request(app)
+    const res = await request
       .patch('/api/bookings/00000000-0000-0000-0000-000000000000/assign-rider')
       .send({ riderId: '00000000-0000-0000-0000-000000000001' });
 
@@ -56,7 +55,7 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
     const rider = await createUserDirect('RIDER');
     const token = signInAs(admin.id, 'ADMIN');
 
-    const res = await request(app)
+    const res = await request
       .patch('/api/bookings/00000000-0000-0000-0000-000000000000/assign-rider')
       .set('Authorization', `Bearer ${token}`)
       .send({ riderId: rider.id });
@@ -73,7 +72,7 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
     await prisma.booking.update({ where: { id: booking.id }, data: { status: 'DELIVERED' } });
 
     const token = signInAs(admin.id, 'ADMIN');
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/assign-rider`)
       .set('Authorization', `Bearer ${token}`)
       .send({ riderId: rider.id });
@@ -90,7 +89,7 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
     await prisma.booking.update({ where: { id: booking.id }, data: { status: 'CANCELLED' } });
 
     const token = signInAs(admin.id, 'ADMIN');
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/assign-rider`)
       .set('Authorization', `Bearer ${token}`)
       .send({ riderId: rider.id });
@@ -105,7 +104,7 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
     const booking = await createBookingDirect(customer.id, zoneA.id, zoneB.id);
     const token = signInAs(admin.id, 'ADMIN');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/assign-rider`)
       .set('Authorization', `Bearer ${token}`)
       .send({ riderId: '00000000-0000-0000-0000-000000000099' });
@@ -121,7 +120,7 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
     const booking = await createBookingDirect(customer.id, zoneA.id, zoneB.id);
     const token = signInAs(admin.id, 'ADMIN');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/assign-rider`)
       .set('Authorization', `Bearer ${token}`)
       .send({ riderId: anotherCustomer.id });
@@ -136,7 +135,7 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
     const booking = await createBookingDirect(customer.id, zoneA.id, zoneB.id);
     const token = signInAs(admin.id, 'ADMIN');
 
-    const res = await request(app)
+    const res = await request
       .patch(`/api/bookings/${booking.id}/assign-rider`)
       .set('Authorization', `Bearer ${token}`)
       .send({});

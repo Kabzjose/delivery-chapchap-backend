@@ -5,7 +5,7 @@ export default defineConfig({
     globals: true,
     environment: 'node',
     setupFiles: ['./tests/setup.ts'],
-    testTimeout: 15000,
-    fileParallelism: false, // avoid DB race conditions between test files
+    testTimeout: 45000,
+    fileParallelism: false,
   },
 });

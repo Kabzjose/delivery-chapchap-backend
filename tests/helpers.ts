@@ -1,8 +1,13 @@
-import request from 'supertest';
+import { createServer } from 'http';
+import supertest from 'supertest';
 import { app } from '../src/app.js';
 import { prisma } from '../src/config/db.js';
 import bcrypt from 'bcrypt';
 import { signAccessToken } from '../src/lib/token.js';
+
+// Bind to a real port so Express properly populates req.params
+const server = createServer(app);
+export const request = supertest(server);
 
 export async function createUserDirect(
   role: 'CUSTOMER' | 'RIDER' | 'ADMIN',
@@ -61,4 +66,4 @@ export async function createBookingDirect(
   });
 }
 
-export { request, app, prisma };
+export { prisma };
