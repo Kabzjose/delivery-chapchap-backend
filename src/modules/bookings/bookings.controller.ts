@@ -5,8 +5,14 @@ import type { BookingStatus } from '@prisma/client';
 
 export const bookingsController = {
   async create(req: Request, res: Response) {
-    const { booking, payment } = await bookingsService.create(req.user!.id, req.body);
-    res.status(201).json({ booking, payment });
+    const result = await bookingsService.create(req.user!.id, req.body);
+    res.status(201).json({
+      booking: result.booking,
+      payment: {
+        paymentId: result.payment.paymentId,
+        message: result.payment.customerMessage,
+      },
+    });
   },
 
   async getOne(req: Request, res: Response) {

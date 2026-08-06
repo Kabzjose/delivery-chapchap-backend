@@ -27,16 +27,25 @@ export const bookingsService = {
       weightKg: input.weightKg,
     });
 
+    // Explicit field list — payerPhone is input-only and must not reach the Booking model
     const booking = await bookingsRepository.create({
       customerId,
-      ...input,
+      recipientName: input.recipientName,
+      recipientPhone: input.recipientPhone,
+      pickupZoneId: input.pickupZoneId,
+      pickupAddress: input.pickupAddress,
+      dropoffZoneId: input.dropoffZoneId,
+      dropoffAddress: input.dropoffAddress,
+      packageType: input.packageType,
+      weightKg: input.weightKg,
+      specialInstructions: input.specialInstructions,
       price: quote.price,
     });
 
     // Immediately trigger STK push — if it fails, the service cancels the booking and throws
     const payment = await paymentsService.initiateForBooking(
       booking.id,
-      input.recipientPhone,
+      input.payerPhone,
       quote.price,
     );
 
