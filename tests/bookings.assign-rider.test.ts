@@ -141,6 +141,6 @@ describe('PATCH /api/bookings/:id/assign-rider', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({});
 
-    expect(res.status).toBe(400);
+    expect(res.status).toBe(422); // Zod schema rejects missing riderId
   });
 });
