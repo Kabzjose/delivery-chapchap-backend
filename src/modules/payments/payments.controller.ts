@@ -13,7 +13,7 @@ export const paymentsController = {
   },
 
   async getStatus(req: Request, res: Response) {
-    const payment = await paymentsService.getStatus(req.params.bookingId);
+    const payment = await paymentsService.getStatus(String(req.params.bookingId));
     res.json({ payment });
   },
 };

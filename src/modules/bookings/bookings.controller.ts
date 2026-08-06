@@ -5,12 +5,12 @@ import type { BookingStatus } from '@prisma/client';
 
 export const bookingsController = {
   async create(req: Request, res: Response) {
-    const booking = await bookingsService.create(req.user!.id, req.body);
-    res.status(201).json({ booking });
+    const { booking, payment } = await bookingsService.create(req.user!.id, req.body);
+    res.status(201).json({ booking, payment });
   },
 
   async getOne(req: Request, res: Response) {
-    const booking = await bookingsService.getById(req.params.id, req.user!);
+    const booking = await bookingsService.getById(String(req.params.id), req.user!);
     res.json({ booking });
   },
 
@@ -31,12 +31,12 @@ export const bookingsController = {
       return res.json(result);
     }
     const result = await bookingsService.listForCustomer(req.user!.id, status, page, limit);
-    res.json(result);
+    return res.json(result);
   },
 
   async updateStatus(req: Request, res: Response) {
     const booking = await bookingsService.updateStatus(
-      req.params.id,
+      String(req.params.id),
       req.body.status,
       req.body.note,
       req.user!,
@@ -48,7 +48,7 @@ export const bookingsController = {
     if (!req.body.riderId) {
       throw new BadRequestError('riderId is required');
     }
-    const booking = await bookingsService.assignRider(req.params.id, req.body.riderId);
+    const booking = await bookingsService.assignRider(String(req.params.id), req.body.riderId);
     res.json({ booking });
   },
 };
